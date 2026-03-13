@@ -1,56 +1,83 @@
-# The Elucidat Coding Test
+# Pair Programming Exercise
 
-## The task
+## Overview
 
-This repository includes the initial setup for a popular kata.  It includes everything you need to get up and running, including a large suite of tests.  The purpose of this task is to put you in the position of having some old, ugly, legacy code and seeing what you could do with it, all of the while making any of your changes test-driven and ensuring everything continues to pass the tests (or any more tests you would write). 
+This is a **60-minute live pair-programming exercise** over screen share. You'll be working with legacy PHP code — an inventory management system for a fantasy inn. The code works, but it's messy, untyped, and hard to extend.
 
-Please follow the specifications below, refactoring as you see fit.  However, please keep the following in mind:
+Your job is to **refactor and extend** it. We're interested in how you think and communicate as much as the code you write. Talk through your decisions as you go.
 
-- All the of tests are expected to pass
-- You will need to uncomment the tests for the new item type
-- Any new code you write should be covered by tests if it's not already
-- Keep good design principles in mind when you refactor the code
-- You only need to spend an hour or two on this
+You are welcome to use AI assistants (Copilot, Claude, etc.) during this exercise — that reflects how we work day to day.
 
-## Getting started
-
-Run:
+## Getting Started
 
 ```
 composer install
-```
-
-Then to run tests:
-```
 composer test
 ```
 
-## Specifications
+All existing tests should pass before you begin making changes.
 
-Hi there. As you know, we are a small inn with a prime location in a
-prominent city ran by a friendly innkeeper named Allison. We also buy and sell only the finest goods.
+## The Inventory System
 
-Unfortunately, our goods are constantly degrading in quality as they approach their sell by date. We
-have a system in place that updates our inventory for us. It was developed by a no-nonsense type named Leeroy, who has moved on to new adventures. Your task is to add the new item to our system so that we can begin selling a new category of items. First an introduction to our system:
+We are a small inn with a prime location in a prominent city ran by a friendly innkeeper named Allison. We buy and sell only the finest goods.
 
-- All items have a SellIn value which denotes the number of days we have to sell the item
-- All items have a Quality value which denotes how valuable the item is
-- At the end of each day our system lowers both values for every item
+Our goods degrade in quality as they approach their sell-by date. The system updates inventory at the end of each day:
 
-Pretty simple, right? Well this is where it gets interesting:
+- All items have a **SellIn** value (days remaining to sell) and a **Quality** value (how valuable the item is)
+- At the end of each day, both values decrease for every item
 
-- Once the sell by date has passed, Quality degrades twice as fast
-- The Quality of an item is never negative
-- "Aged Brie" actually increases in Quality the older it gets
-- The Quality of an item is never more than 50
-- "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-- "Backstage passes", like aged brie, increases in Quality as its SellIn value approaches; Quality increases by 2 when there are 10 days or less and by 3 when there are 5 days or less but Quality drops to 0 after the concert
+The rules:
 
-We have recently signed a supplier of conjured items. This requires an update to our system:
+- Once the sell-by date has passed, **Quality degrades twice as fast**
+- Quality is never negative
+- **Aged Brie** increases in Quality the older it gets
+- Quality is never more than 50
+- **Sulfuras** is legendary — it never has to be sold and never decreases in Quality (its Quality is always 80)
+- **Backstage passes** increase in Quality as the concert approaches: +2 when 10 days or less, +3 when 5 days or less, but drops to 0 after the concert
 
-- "Conjured" items degrade in Quality twice as fast as normal items
+---
 
-Feel free to make any changes to the `nextDay` method and add any new code as long as everything
-still works correctly. However, do not alter the `Item` class or `items` property as those belong to the goblin in the corner who will insta-rage you as he doesn't believe in shared code ownership (you can make the `nextDay` method and `items` property static if you like, we'll cover for you).
+## The Task
 
-Just for clarification, an item can never have its Quality increase above 50, however "Sulfuras" is a legendary item and as such its Quality is 80 and it never alters.
+The `nextDay()` method in `GildedRose.php` is deeply nested spaghetti. Refactor it into clean, extensible object-oriented code, then implement two new item types.
+
+Feel free to make any changes to the `nextDay` method and add any new code as long as everything still works correctly. However, **do not alter the `Item` class or `items` property** as those belong to the goblin in the corner who will insta-rage you as he doesn't believe in shared code ownership.
+
+### Requirements
+
+- Refactor `nextDay()` so each item type's behaviour is encapsulated (Strategy pattern, polymorphism, or similar)
+- Adding a new item type in future should not require modifying existing code (Open/Closed Principle)
+- All existing tests must continue to pass
+- Uncomment the **Conjured** item tests and make them pass:
+  - Conjured items degrade in Quality twice as fast as normal items
+- Implement a new **Enchanted** item type and write tests for it:
+  - Enchanted items increase in Quality by 2 each day (twice as fast as Aged Brie)
+  - After the sell-by date, Quality still increases but only by 1
+  - If Quality reaches exactly 50, it resets to 0 on the next day
+- Write any additional tests you think are missing
+
+---
+
+## Bonus
+
+Expose the inventory system as a simple REST API. No framework required — PHP's built-in server is fine.
+
+We follow a layered architecture across our services:
+
+```
+Controller → Service (via interface) → Repository (via interface) → Model
+```
+
+- **Controller** — handles HTTP concerns only (request in, response out)
+- **Service** — business logic and orchestration, injected via an interface
+- **Repository** — data access, injected via an interface
+- **Model** — your `Item` class (already exists)
+
+Each layer should depend on the interface of the layer below it, not the concrete implementation.
+
+Endpoints to implement:
+
+- `GET /items` — list all items as JSON
+- `GET /items/{name}` — fetch a single item by name (return 404 if not found)
+- `POST /items/advance-day` — advance all items by one day and return updated state
+- Proper HTTP status codes and error responses as JSON
