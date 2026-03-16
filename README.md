@@ -6,7 +6,11 @@ This is a **60-minute live pair-programming exercise** over screen share. You'll
 
 Your job is to **refactor and extend** it. We're interested in how you think and communicate as much as the code you write. Talk through your decisions as you go.
 
-You are welcome to use AI assistants (Copilot, Claude, etc.) during this exercise — that reflects how we work day to day.
+You are welcome to use AI assistants (Copilot, Claude, etc.) during this exercise — that reflects how we work day to day. However:
+
+- **Write your own prompts.** Don't copy-paste the README or task description into the AI. We want to see how you break down a problem and communicate it in your own words.
+- **Talk through what you're doing.** If you're prompting an AI, tell us what you're asking it and why.
+- **You own the output.** Be ready to explain and modify anything the AI generates.
 
 ## Getting Started
 
